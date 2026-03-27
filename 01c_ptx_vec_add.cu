@@ -3,6 +3,9 @@
 // Same vec_add, but the addition is done with inline PTX assembly.
 // This shows you exactly what instructions the GPU executes.
 //
+// NOTE: Inline PTX requires nvcc. It does NOT work on LeetGPU (which
+//       uses a simulator). Use godbolt.org or compile locally with nvcc.
+//
 // PTX reference: docs.nvidia.com/cuda/parallel-thread-execution
 // Explore interactively: godbolt.org (select CUDA as language)
 //
@@ -58,7 +61,6 @@ int main() {
     int block_size = 256;
     int grid_size = (N + block_size - 1) / block_size;
 
-    // Run the PTX version
     vec_add_ptx_kernel<<<grid_size, block_size>>>(d_a, d_b, d_c, N);
 
     cudaMemcpy(h_c, d_c, bytes, cudaMemcpyDeviceToHost);
