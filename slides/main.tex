@@ -764,7 +764,7 @@ __global__ void matmul_tiled(float *A, float *B, float *C,
 \begin{frame}
 	\frametitle{Shared Memory Banks}
 	Shared memory is divided into \textbf{32 banks} (one per warp thread). \\
-	Consecutive 4-byte words map to consecutive banks:
+	Consecutive 4-byte words map to consecutive banks: (example with 8 banks in SMEM)
 	\vspace{0.5em}
 	\begin{center}
 		\begin{tikzpicture}[
@@ -878,7 +878,7 @@ __global__ void matmul_tiled(float *A, float *B, float *C,
 	\begin{block}{Try it on \texttt{leetgpu.com}}
 		File: \texttt{03\_tiled\_matmul.cu}
 	\end{block}
-	\vspace{0.3em}
+	\vspace{0.1em}
 	\begin{lstlisting}[language=C]
 // Inside the tile loop:
 
@@ -892,12 +892,11 @@ for (int k = 0; k < TILE; k++)
     sum += As[???][???] * Bs[???][???];
 __syncthreads();
 	\end{lstlisting}
-	\vspace{0.3em}
+	\vspace{0.1em}
 	\begin{itemize}
 		\item Tile $t$ starts at column \texttt{t*TILE} for $A$, row \texttt{t*TILE} for $B$
 		\item Add boundary checks (load \texttt{0.0f} if out of bounds)
-		\item Compare performance with your Exercise 2 solution!
-		\item Check the PTX: look for \texttt{ld.shared} instead of \texttt{ld.global} in the inner loop
+		\item Compare performance with your Exercise 2 solution, look for \texttt{ld.global}
 	\end{itemize}
 \end{frame}
 
@@ -913,9 +912,6 @@ __syncthreads();
 		\item Change the \texttt{Bs} declaration from:
 		      \begin{lstlisting}[language=C]
 __shared__ float Bs[TILE][TILE];       // bank conflicts
-		      \end{lstlisting}
-		      to:
-		      \begin{lstlisting}[language=C]
 __shared__ float Bs[TILE][TILE + 1];   // no conflicts
 		      \end{lstlisting}
 		\item Run again -- do you see a speedup?
@@ -1132,7 +1128,6 @@ def softmax_kernel(input_ptr, output_ptr, n_cols,
     row = tl.program_id(0)
     offsets = tl.arange(0, BLOCK)
     mask = offsets < n_cols
-
     # Load one row
     row_ptr = input_ptr + row * n_cols
     x = tl.load(row_ptr + offsets, mask=mask,
@@ -1142,7 +1137,6 @@ def softmax_kernel(input_ptr, output_ptr, n_cols,
     numerator = tl.exp(x - x_max)
     denominator = tl.sum(numerator, axis=0)
     result = numerator / denominator
-
     out_ptr = output_ptr + row * n_cols
     tl.store(out_ptr + offsets, result, mask=mask)
 	\end{lstlisting}
@@ -1377,7 +1371,6 @@ def matmul_kernel(A, B, C, M, N, K, ...):
 		Compiler Explorer: \texttt{godbolt.org} ~|~
 		GPU MODE: YouTube / Discord
 	\end{block}
-	\vspace{0.5em}
 	\begin{center}
 		\Large\textcolor{codegreen}{Questions?}
 	\end{center}
