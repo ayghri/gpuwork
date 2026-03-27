@@ -5,6 +5,7 @@
 *.cubin
 *.fatbin
 
+build/
 
 # Prerequisites
 *.d
