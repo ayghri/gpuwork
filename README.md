@@ -1,7 +1,5 @@
 # GPU Workshop Exercises
 
-**Workshop repository**: https://github.com/ayghri/gpuwork
-
 ## Platforms
 
 **LeetGPU** -- browser-based CUDA playground, no setup needed
